@@ -76,10 +76,3 @@ Ver [docs/arquitectura.md](docs/arquitectura.md)
 ## API
 
 Ver [docs/api.md](docs/api.md)
-
-## Integrantes
-
-| Nombre | Módulo |
-|---|---|
-| Ariana Cordero | PostgreSQL · API · Auth |
-| [Compañera] | MongoDB · Frontend · Documentación |
