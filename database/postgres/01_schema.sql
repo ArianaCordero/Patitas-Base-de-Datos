@@ -1,4 +1,4 @@
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+﻿CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE clientes (
@@ -6,6 +6,8 @@ CREATE TABLE clientes (
     nombre          VARCHAR(100) NOT NULL,
     apellido        VARCHAR(100) NOT NULL,
     email           VARCHAR(150) NOT NULL UNIQUE,
+    password_hash   VARCHAR(255) NOT NULL DEFAULT '',
+    rol             VARCHAR(20) NOT NULL DEFAULT 'cliente',
     telefono        VARCHAR(20),
     fecha_registro  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     activo          BOOLEAN NOT NULL DEFAULT TRUE
