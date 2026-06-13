@@ -5,7 +5,18 @@ export const crearPedido = async (req, res) => {
   const client = await getClient();
   try {
     await client.query('BEGIN');
-    const { direccion_id, items } = req.body;
+    const { items, calle, ciudad, estado, codigo_postal } = req.body;
+
+    let direccion_id = req.body.direccion_id;
+
+    if (!direccion_id) {
+      const { rows } = await client.query(
+        `INSERT INTO direcciones (cliente_id, calle, ciudad, estado, codigo_postal, es_principal)
+         VALUES ($1, $2, $3, $4, $5, true) RETURNING direccion_id`,
+        [req.usuario.cliente_id, calle || 'Sin direccion', ciudad || 'La Paz', estado || 'La Paz', codigo_postal || '0000']
+      );
+      direccion_id = rows[0].direccion_id;
+    }
 
     const { rows } = await client.query(
       'SELECT fn_registrar_pedido($1, $2, $3) AS pedido_id',

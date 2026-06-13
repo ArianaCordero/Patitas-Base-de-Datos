@@ -32,7 +32,13 @@ export default function Checkout() {
         cantidad: item.quantity || item.cantidad || 1,
         precio_unitario: item.price || item.precio || 0
       }));
-      await pedidoService.crear({ direccion_id: 1, items: itemsFormateados });
+      await pedidoService.crear({
+        items: itemsFormateados,
+        calle: form.address,
+        ciudad: form.city,
+        estado: form.state,
+        codigo_postal: form.zip,
+      });
       clearCart();
       setSubmitted(true);
     } catch (err) {

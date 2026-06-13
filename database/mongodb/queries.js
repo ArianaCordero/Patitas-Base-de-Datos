@@ -1,57 +1,81 @@
 import mongoose from 'mongoose';
-import { Ropa, Electronica, Muebles, Adornos, Utensilios } from './schema.js';
 import dotenv from 'dotenv';
 dotenv.config({ path: '../../server/.env' });
 
-await mongoose.connect(process.env.MONGO_URI);
+await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/patitas_catalog');
 
-// Productos de electrónica con precio mayor a 500 y stock mayor a 20
-const electronicos_filtrados = await Electronica.find({
-  $and: [
-    { precio: { $gt: 500 } },
-    { stock: { $gt: 20 } }
-  ]
+const comidaSchema = new mongoose.Schema({ producto_id: String, nombre: String, categoria: String, precio: Number, marca: String, tipo_animal: [String], peso_kg: Number, sabores: [String], etiquetas: [String], industria: [String], stock: Number, activo: Boolean });
+const ropaSchema = new mongoose.Schema({ producto_id: String, nombre: String, categoria: String, precio: Number, marca: String, tipo_animal: [String], tallas: [String], colores: [String], material: String, etiquetas: [String], industria: [String], stock: Number, activo: Boolean });
+const juguetesSchema = new mongoose.Schema({ producto_id: String, nombre: String, categoria: String, precio: Number, marca: String, tipo_animal: [String], material: String, edad_minima_meses: Number, interactivo: Boolean, variantes: [String], etiquetas: [String], industria: [String], stock: Number, activo: Boolean });
+const accesoriosSchema = new mongoose.Schema({ producto_id: String, nombre: String, categoria: String, precio: Number, marca: String, tipo_animal: [String], material: String, colores: [String], variantes: [String], etiquetas: [String], industria: [String], stock: Number, activo: Boolean });
+const saludSchema = new mongoose.Schema({ producto_id: String, nombre: String, categoria: String, precio: Number, marca: String, tipo_animal: [String], tipo_producto: String, requiere_receta: Boolean, presentacion: [String], etiquetas: [String], industria: [String], stock: Number, activo: Boolean });
+
+const Comida = mongoose.model('Comida', comidaSchema, 'productos_comida');
+const Ropa = mongoose.model('Ropa', ropaSchema, 'productos_ropa');
+const Juguetes = mongoose.model('Juguetes', juguetesSchema, 'productos_juguetes');
+const Accesorios = mongoose.model('Accesorios', accesoriosSchema, 'productos_accesorios');
+const Salud = mongoose.model('Salud', saludSchema, 'productos_salud');
+
+const comida_precio_alto = await Comida.find({
+  $and: [{ precio: { $gt: 100 } }, { stock: { $gt: 50 } }]
 }).select('nombre precio stock marca');
 
-// Productos de ropa talla M o L con precio menor a 500
-const ropa_filtrada = await Ropa.find({
-  $and: [
-    { tallas: { $in: ['M', 'L'] } },
-    { precio: { $lt: 500 } }
-  ]
+const ropa_invierno_economica = await Ropa.find({
+  $and: [{ etiquetas: { $in: ['invierno'] } }, { precio: { $lt: 250 } }]
 }).select('nombre precio tallas colores');
 
-// Muebles de madera o con precio menor a 1000
-const muebles_filtrados = await Muebles.find({
-  $or: [
-    { material: { $regex: /madera/i } },
-    { precio: { $lt: 1000 } }
-  ]
-}).select('nombre precio material estilo');
+const juguetes_interactivos_o_baratos = await Juguetes.find({
+  $or: [{ interactivo: true }, { precio: { $lt: 100 } }]
+}).select('nombre precio interactivo variantes');
 
-// Productos con etiqueta "premium" o "ergonómico" en cualquier categoría
-const [r, e, m, a, u] = await Promise.all([
-  Ropa.find({ etiquetas: { $in: ['premium', 'ergonómico', 'wireless'] } }),
-  Electronica.find({ etiquetas: { $in: ['premium', 'ergonómico', 'wireless'] } }),
-  Muebles.find({ etiquetas: { $in: ['premium', 'ergonómico', 'wireless'] } }),
-  Adornos.find({ etiquetas: { $in: ['premium', 'ergonómico', 'wireless'] } }),
-  Utensilios.find({ etiquetas: { $in: ['premium', 'ergonómico', 'wireless'] } }),
-]);
-const por_etiqueta = [...r, ...e, ...m, ...a, ...u];
+const accesorios_seguridad_viaje = await Accesorios.find({
+  etiquetas: { $in: ['seguridad', 'viaje', 'transporte'] }
+}).select('nombre precio etiquetas');
 
-// Utensilios aptos para lavavajillas con precio entre 800 y 1500
-const utensilios_filtrados = await Utensilios.find({
-  $and: [
-    { apto_lavavajillas: true },
-    { precio: { $gte: 800, $lte: 1500 } }
-  ]
-}).select('nombre precio material variantes');
+const salud_sin_receta_economica = await Salud.find({
+  $and: [{ requiere_receta: false }, { precio: { $gte: 80, $lte: 200 } }]
+}).select('nombre precio tipo_producto presentacion');
 
-// Productos por industria usando arreglo
-const por_industria = await Electronica.find({
-  industria: { $all: ['tecnología', 'entretenimiento'] }
+const productos_por_industria = await Comida.find({
+  industria: { $all: ['mascotas', 'nutricion'] }
 }).select('nombre industria precio');
 
-console.log({ electronicos_filtrados, ropa_filtrada, muebles_filtrados, por_etiqueta, utensilios_filtrados, por_industria });
+const todos_perros = await Promise.all([
+  Comida.find({ tipo_animal: { $in: ['perro'] } }),
+  Ropa.find({ tipo_animal: { $in: ['perro'] } }),
+  Juguetes.find({ tipo_animal: { $in: ['perro'] } }),
+  Accesorios.find({ tipo_animal: { $in: ['perro'] } }),
+  Salud.find({ tipo_animal: { $in: ['perro'] } }),
+]);
+
+const productos_premium = await Promise.all([
+  Comida.find({ etiquetas: { $in: ['premium'] } }),
+  Ropa.find({ etiquetas: { $in: ['premium'] } }),
+  Juguetes.find({ etiquetas: { $in: ['premium'] } }),
+]);
+
+console.log('=== Comida precio > 100 y stock > 50 ($and $gt) ===');
+console.log(comida_precio_alto);
+
+console.log('=== Ropa invierno precio < 250 ($and $in $lt) ===');
+console.log(ropa_invierno_economica);
+
+console.log('=== Juguetes interactivos O precio < 100 ($or) ===');
+console.log(juguetes_interactivos_o_baratos);
+
+console.log('=== Accesorios seguridad/viaje ($in arreglo) ===');
+console.log(accesorios_seguridad_viaje);
+
+console.log('=== Salud sin receta entre $80-$200 ($and $gte $lte) ===');
+console.log(salud_sin_receta_economica);
+
+console.log('=== Comida industria mascotas+nutricion ($all) ===');
+console.log(productos_por_industria);
+
+console.log('=== Todos los productos para perros ($in tipo_animal) ===');
+console.log(todos_perros.flat().map(p => p.nombre));
+
+console.log('=== Productos premium todas categorias ===');
+console.log(productos_premium.flat().map(p => p.nombre));
 
 await mongoose.disconnect();
