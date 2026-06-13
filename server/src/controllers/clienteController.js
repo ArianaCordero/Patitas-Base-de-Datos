@@ -27,13 +27,13 @@ export const registrar = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
   const { rows } = await query(
-    'SELECT cliente_id, nombre, email, password_hash FROM clientes WHERE email = $1 AND activo = TRUE',
+    'SELECT cliente_id, nombre, email, rol, password_hash FROM clientes WHERE email = $1 AND activo = TRUE',
     [email]
   );
-  if (!rows.length) return res.status(401).json({ error: 'Credenciales inválidas' });
+  if (!rows.length) return res.status(401).json({ error: 'Credenciales invalidas' });
 
   const valido = await bcrypt.compare(password, rows[0].password_hash);
-  if (!valido) return res.status(401).json({ error: 'Credenciales inválidas' });
+  if (!valido) return res.status(401).json({ error: 'Credenciales invalidas' });
 
   const token = jwt.sign({ cliente_id: rows[0].cliente_id }, process.env.JWT_SECRET, { expiresIn: '7d' });
   const { password_hash, ...cliente } = rows[0];
