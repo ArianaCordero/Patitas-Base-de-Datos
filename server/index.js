@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import connectMongo from './src/config/mongodb.js';
 import pool from './src/config/postgres.js';
 import clientesRouter from './src/routes/clientes.js';
@@ -10,7 +11,6 @@ import catalogoRouter from './src/routes/catalogo.js';
 import carritoRouter from './src/routes/carrito.js';
 
 dotenv.config();
-process.env.MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/patitas_catalog';
 
 const app = express();
 
@@ -25,7 +25,11 @@ app.use('/api/carrito', carritoRouter);
 
 app.get('/api/health', async (_req, res) => {
   const pg = await pool.query('SELECT 1');
-  res.json({ status: 'ok', postgres: !!pg, mongo: true });
+  res.json({
+    status: 'ok',
+    postgres: !!pg,
+    mongo: mongoose.connection.readyState === 1
+  });
 });
 
 app.use((err, _req, res, _next) => {
@@ -37,7 +41,8 @@ const start = async () => {
   await connectMongo();
   await pool.query('SELECT 1');
   console.log('PostgreSQL conectado');
-  app.listen(process.env.PORT, () => console.log(`Servidor corriendo en puerto ${process.env.PORT}`));
+  const PORT = process.env.PORT ?? 3001;
+  app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
 };
 
 start().catch(console.error);

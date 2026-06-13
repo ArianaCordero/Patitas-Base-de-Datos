@@ -1,5 +1,22 @@
 import mongoose from 'mongoose';
 
+const comidaSchema = new mongoose.Schema({
+  producto_id: { type: String, required: true, unique: true },
+  nombre: { type: String, required: true },
+  categoria: { type: String, default: 'comida' },
+  precio: { type: Number, required: true, min: 0 },
+  marca: { type: String, required: true },
+  descripcion: { type: String },
+  tipo_animal: [String],
+  peso_kg: { type: Number },
+  sabores: [String],
+  etiquetas: [String],
+  industria: [String],
+  stock: { type: Number, default: 0 },
+  activo: { type: Boolean, default: true },
+  creado_en: { type: Date, default: Date.now }
+});
+
 const ropaSchema = new mongoose.Schema({
   producto_id: { type: String, required: true, unique: true },
   nombre: { type: String, required: true },
@@ -7,10 +24,10 @@ const ropaSchema = new mongoose.Schema({
   precio: { type: Number, required: true, min: 0 },
   marca: { type: String, required: true },
   descripcion: { type: String },
-  tallas: [{ type: String, enum: ['XS','S','M','L','XL','XXL'] }],
+  tipo_animal: [String],
+  tallas: [String],
   colores: [String],
   material: { type: String },
-  genero: { type: String, enum: ['masculino','femenino','unisex'] },
   etiquetas: [String],
   industria: [String],
   stock: { type: Number, default: 0 },
@@ -18,78 +35,54 @@ const ropaSchema = new mongoose.Schema({
   creado_en: { type: Date, default: Date.now }
 });
 
-const electronicaSchema = new mongoose.Schema({
+const juguetesSchema = new mongoose.Schema({
   producto_id: { type: String, required: true, unique: true },
   nombre: { type: String, required: true },
-  categoria: { type: String, default: 'electronica' },
+  categoria: { type: String, default: 'juguetes' },
   precio: { type: Number, required: true, min: 0 },
   marca: { type: String, required: true },
   descripcion: { type: String },
-  voltaje: { type: String },
-  potencia_watts: { type: Number },
-  garantia_meses: { type: Number },
-  conectividad: [String],
-  compatible_con: [String],
-  etiquetas: [String],
-  industria: [String],
-  stock: { type: Number, default: 0 },
-  activo: { type: Boolean, default: true },
-  creado_en: { type: Date, default: Date.now }
-});
-
-const mueblesSchema = new mongoose.Schema({
-  producto_id: { type: String, required: true, unique: true },
-  nombre: { type: String, required: true },
-  categoria: { type: String, default: 'muebles' },
-  precio: { type: Number, required: true, min: 0 },
-  marca: { type: String, required: true },
-  descripcion: { type: String },
+  tipo_animal: [String],
   material: { type: String },
-  dimensiones: {
-    alto_cm: Number,
-    ancho_cm: Number,
-    profundidad_cm: Number,
-    peso_kg: Number
-  },
-  colores: [String],
-  estilo: { type: String },
-  etiquetas: [String],
-  industria: [String],
-  stock: { type: Number, default: 0 },
-  activo: { type: Boolean, default: true },
-  creado_en: { type: Date, default: Date.now }
-});
-
-const adornosSchema = new mongoose.Schema({
-  producto_id: { type: String, required: true, unique: true },
-  nombre: { type: String, required: true },
-  categoria: { type: String, default: 'adornos' },
-  precio: { type: Number, required: true, min: 0 },
-  marca: { type: String, required: true },
-  descripcion: { type: String },
-  material: { type: String },
-  colores: [String],
-  ocasion: [String],
-  estilo: { type: String },
-  etiquetas: [String],
-  industria: [String],
-  stock: { type: Number, default: 0 },
-  activo: { type: Boolean, default: true },
-  creado_en: { type: Date, default: Date.now }
-});
-
-const utensiliosSchema = new mongoose.Schema({
-  producto_id: { type: String, required: true, unique: true },
-  nombre: { type: String, required: true },
-  categoria: { type: String, default: 'utensilios_cocina' },
-  precio: { type: Number, required: true, min: 0 },
-  marca: { type: String, required: true },
-  descripcion: { type: String },
-  material: { type: String },
-  apto_lavavajillas: { type: Boolean },
-  apto_microondas: { type: Boolean },
-  capacidad_litros: { type: Number },
+  edad_minima_meses: { type: Number },
+  interactivo: { type: Boolean },
   variantes: [String],
+  etiquetas: [String],
+  industria: [String],
+  stock: { type: Number, default: 0 },
+  activo: { type: Boolean, default: true },
+  creado_en: { type: Date, default: Date.now }
+});
+
+const accesoriosSchema = new mongoose.Schema({
+  producto_id: { type: String, required: true, unique: true },
+  nombre: { type: String, required: true },
+  categoria: { type: String, default: 'accesorios' },
+  precio: { type: Number, required: true, min: 0 },
+  marca: { type: String, required: true },
+  descripcion: { type: String },
+  tipo_animal: [String],
+  material: { type: String },
+  colores: [String],
+  variantes: [String],
+  etiquetas: [String],
+  industria: [String],
+  stock: { type: Number, default: 0 },
+  activo: { type: Boolean, default: true },
+  creado_en: { type: Date, default: Date.now }
+});
+
+const saludSchema = new mongoose.Schema({
+  producto_id: { type: String, required: true, unique: true },
+  nombre: { type: String, required: true },
+  categoria: { type: String, default: 'salud' },
+  precio: { type: Number, required: true, min: 0 },
+  marca: { type: String, required: true },
+  descripcion: { type: String },
+  tipo_animal: [String],
+  tipo_producto: { type: String },
+  requiere_receta: { type: Boolean, default: false },
+  presentacion: [String],
   etiquetas: [String],
   industria: [String],
   stock: { type: Number, default: 0 },
@@ -100,11 +93,7 @@ const utensiliosSchema = new mongoose.Schema({
 const carritoSchema = new mongoose.Schema({
   cliente_uuid: { type: String, required: true, unique: true },
   items: [{
-    producto_id: String,
-    nombre: String,
-    precio: Number,
-    cantidad: Number,
-    categoria: String
+    producto_id: String, nombre: String, precio: Number, cantidad: Number, categoria: String
   }],
   actualizado_en: { type: Date, default: Date.now }
 });
@@ -113,18 +102,15 @@ const preferenciasSchema = new mongoose.Schema({
   cliente_uuid: { type: String, required: true, unique: true },
   categorias_favoritas: [String],
   marcas_favoritas: [String],
-  rango_precio: {
-    min: { type: Number, default: 0 },
-    max: { type: Number, default: 99999 }
-  },
+  rango_precio: { min: { type: Number, default: 0 }, max: { type: Number, default: 99999 } },
   historial_vistos: [String],
   actualizado_en: { type: Date, default: Date.now }
 });
 
+export const Comida = mongoose.model('Comida', comidaSchema, 'productos_comida');
 export const Ropa = mongoose.model('Ropa', ropaSchema, 'productos_ropa');
-export const Electronica = mongoose.model('Electronica', electronicaSchema, 'productos_electronica');
-export const Muebles = mongoose.model('Muebles', mueblesSchema, 'productos_muebles');
-export const Adornos = mongoose.model('Adornos', adornosSchema, 'productos_adornos');
-export const Utensilios = mongoose.model('Utensilios', utensiliosSchema, 'productos_utensilios');
+export const Juguetes = mongoose.model('Juguetes', juguetesSchema, 'productos_juguetes');
+export const Accesorios = mongoose.model('Accesorios', accesoriosSchema, 'productos_accesorios');
+export const Salud = mongoose.model('Salud', saludSchema, 'productos_salud');
 export const Carrito = mongoose.model('Carrito', carritoSchema, 'carritos');
 export const Preferencias = mongoose.model('Preferencias', preferenciasSchema, 'preferencias');

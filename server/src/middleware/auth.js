@@ -10,7 +10,7 @@ export const verificarToken = async (req, res, next) => {
     const token = header.split(' ')[1];
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     const { rows } = await query(
-      'SELECT cliente_id, email FROM clientes WHERE cliente_id = $1 AND activo = TRUE',
+      'SELECT cliente_id, email, rol FROM clientes WHERE cliente_id = $1 AND activo = TRUE',
       [payload.cliente_id]
     );
     if (!rows.length) return res.status(401).json({ error: 'Usuario no válido' });

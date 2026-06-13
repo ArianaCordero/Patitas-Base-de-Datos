@@ -27,13 +27,13 @@ export const registrar = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
   const { rows } = await query(
-    'SELECT cliente_id, nombre, email, password_hash FROM clientes WHERE email = $1 AND activo = TRUE',
+    'SELECT cliente_id, nombre, email, rol, password_hash FROM clientes WHERE email = $1 AND activo = TRUE',
     [email]
   );
-  if (!rows.length) return res.status(401).json({ error: 'Credenciales inválidas' });
+  if (!rows.length) return res.status(401).json({ error: 'Credenciales invalidas' });
 
   const valido = await bcrypt.compare(password, rows[0].password_hash);
-  if (!valido) return res.status(401).json({ error: 'Credenciales inválidas' });
+  if (!valido) return res.status(401).json({ error: 'Credenciales invalidas' });
 
   const token = jwt.sign({ cliente_id: rows[0].cliente_id }, process.env.JWT_SECRET, { expiresIn: '7d' });
   const { password_hash, ...cliente } = rows[0];
@@ -69,7 +69,7 @@ export const agregarMetodoPago = async (req, res) => {
   const client = await getClient();
   try {
     await client.query('BEGIN');
-    await client.query(`SET app.encryption_key = '${process.env.JWT_SECRET}'`);
+    await client.query('SELECT set_config($1, $2, true)', ['app.encryption_key', process.env.APP_ENCRYPTION_KEY]);
     const { tipo, numero_tarjeta, fecha_expiracion } = req.body;
     const ultimos_4 = numero_tarjeta.slice(-4);
     const { rows } = await client.query(
