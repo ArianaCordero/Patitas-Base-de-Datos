@@ -1,9 +1,11 @@
-import { Comida, Ropa, Juguetes } from '../config/schema.js';
+import { Comida, Ropa, Juguetes, Accesorios, Salud } from '../config/schema.js';
 
 const modeloPorCategoria = {
   comida: Comida,
   ropa: Ropa,
   juguetes: Juguetes,
+  accesorios: Accesorios,
+  salud: Salud,
 };
 
 export const listarProductos = async (req, res) => {
