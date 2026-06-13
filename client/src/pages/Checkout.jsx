@@ -2,20 +2,44 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { IconCheck } from '../components/Icons';
+import { pedidoService } from '../services/catalogo.js';
 
 export default function Checkout() {
   const { items, subtotal, clearCart } = useCart();
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState({
     name: '', email: '', phone: '', address: '', city: '', state: '', zip: '', card: '', expiry: '', cvv: '',
   });
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    clearCart();
-    setSubmitted(true);
+    setError('');
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('patitas_token');
+      if (!token) {
+        setError('Debes iniciar sesion para completar el pedido');
+        setLoading(false);
+        return;
+      }
+      const itemsFormateados = items.map(item => ({
+        producto_mongo_id: item.id || item.producto_id || 'PROD-000',
+        nombre_producto: item.name || item.nombre,
+        cantidad: item.quantity || item.cantidad || 1,
+        precio_unitario: item.price || item.precio || 0
+      }));
+      await pedidoService.crear({ direccion_id: 1, items: itemsFormateados });
+      clearCart();
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message || 'Error al procesar el pedido');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -25,8 +49,8 @@ export default function Checkout() {
           <IconCheck className="w-12 h-12 text-white" />
         </div>
         <h2 className="text-3xl font-black text-text mb-2" style={{ fontFamily: 'var(--font-family-display)' }}>Pedido confirmado!</h2>
-        <p className="text-text-muted mb-6 text-lg">Gracias por tu compra. Te enviaremos un correo con los detalles.</p>
-        <Link to="/" className="inline-block bg-primary text-white font-bold px-8 py-4 rounded-xl brutal-border brutal-shadow hover-lift transition-all">Volver al inicio &#8594;</Link>
+        <p className="text-text-muted mb-6 text-lg">Tu pedido fue registrado exitosamente en la base de datos.</p>
+        <Link to="/" className="inline-block bg-primary text-white font-bold px-8 py-4 rounded-xl brutal-border brutal-shadow hover-lift transition-all">Volver al inicio</Link>
       </div>
     );
   }
@@ -42,24 +66,29 @@ export default function Checkout() {
 
   const shipping = subtotal >= 999 ? 0 : 99;
   const total = subtotal + shipping;
-
   const inputClass = "w-full brutal-border rounded-xl px-4 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-white";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
       <div className="flex items-center gap-3 mb-8">
         <div className="w-12 h-12 bg-neon-purple brutal-border brutal-shadow-sm rounded-xl flex items-center justify-center animate-wiggle">
-          <span className="text-xl text-white">&#128179;</span>
+          <span className="text-xl text-white">💳</span>
         </div>
         <h1 className="text-3xl font-black text-text" style={{ fontFamily: 'var(--font-family-display)' }}>Checkout</h1>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-sm font-medium">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-8">
             <div className="bg-white brutal-border brutal-shadow-lg rounded-2xl p-6">
               <h2 className="font-black text-text text-xl mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-family-display)' }}>
-                <span className="w-8 h-8 bg-primary brutal-border rounded-lg flex items-center justify-center text-white text-sm" style={{ borderColor: '#1A1A2E' }}>1</span>
+                <span className="w-8 h-8 bg-primary brutal-border rounded-lg flex items-center justify-center text-white text-sm">1</span>
                 Informacion de envio
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -96,7 +125,7 @@ export default function Checkout() {
 
             <div className="bg-white brutal-border brutal-shadow-lg rounded-2xl p-6">
               <h2 className="font-black text-text text-xl mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-family-display)' }}>
-                <span className="w-8 h-8 bg-neon-purple brutal-border rounded-lg flex items-center justify-center text-white text-sm" style={{ borderColor: '#1A1A2E' }}>2</span>
+                <span className="w-8 h-8 bg-neon-purple brutal-border rounded-lg flex items-center justify-center text-white text-sm">2</span>
                 Pago
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -115,8 +144,8 @@ export default function Checkout() {
               </div>
             </div>
 
-            <button type="submit" className="w-full bg-primary text-white font-black py-5 rounded-xl brutal-border brutal-shadow-lg hover-lift transition-all text-xl cursor-pointer">
-              Confirmar pedido — Bs {total.toFixed(2)} &#128640;
+            <button type="submit" disabled={loading} className="w-full bg-primary text-white font-black py-5 rounded-xl brutal-border brutal-shadow-lg hover-lift transition-all text-xl cursor-pointer disabled:opacity-50">
+              {loading ? 'Procesando pedido...' : `Confirmar pedido — Bs ${total.toFixed(2)}`}
             </button>
           </div>
 

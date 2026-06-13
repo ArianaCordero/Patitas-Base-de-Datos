@@ -69,7 +69,7 @@ export const agregarMetodoPago = async (req, res) => {
   const client = await getClient();
   try {
     await client.query('BEGIN');
-    await client.query(`SET app.encryption_key = '${process.env.JWT_SECRET}'`);
+    await client.query('SELECT set_config($1, $2, true)', ['app.encryption_key', process.env.APP_ENCRYPTION_KEY]);
     const { tipo, numero_tarjeta, fecha_expiracion } = req.body;
     const ultimos_4 = numero_tarjeta.slice(-4);
     const { rows } = await client.query(
