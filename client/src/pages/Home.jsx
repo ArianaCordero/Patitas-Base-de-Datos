@@ -24,7 +24,7 @@ export default function Home() {
         brand: p.marca,
         category: p.categoria,
         rating: 4.5,
-        image: productImages[p.producto_id] || 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=300&fit=crop',
+        image: p.image || productImages[p.producto_id] || 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=300&fit=crop',
         description: p.descripcion || p.nombre,
         isNew: false,
         discount: 0,
