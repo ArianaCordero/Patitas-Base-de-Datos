@@ -51,34 +51,6 @@ cd server
 # 5. Railway deploy automático al hacer push a main
 ```
 
-## Backend — Render
-
-Render incluye PostgreSQL gratis. El archivo `server/render.yaml` ya está configurado.
-
-```bash
-# 1. Subir el repo a GitHub
-
-# 2. En https://dashboard.render.com:
-#    - New -> Blueprint
-#    - Conecta tu repo de GitHub
-#    - Render detecta automáticamente render.yaml
-#    - Te pide llenar las variables sync:false:
-#        CLIENT_URL = https://tu-frontend.vercel.app
-#        PG_USER = postgres
-#        PG_PASSWORD = (la genera Render, la ves en Database dashboard)
-#        MONGO_URI = mongodb+srv://... (MongoDB Atlas)
-#        JWT_SECRET = (openssl rand -hex 32)
-#        APP_ENCRYPTION_KEY = (openssl rand -hex 16)
-
-# 3. Render crea:
-#    - Un Web Service (Node.js) con auto-deploy
-#    - Una base de datos PostgreSQL
-
-# 4. Deploy automático al hacer push a main
-```
-
-**Alternativas** (misma config básica): Fly.io, Koyeb, Cyclic.sh, Northflank.
-
 ## Requisitos previos
 
 - PostgreSQL (Railway Postgres o [Supabase](https://supabase.com) gratis)
