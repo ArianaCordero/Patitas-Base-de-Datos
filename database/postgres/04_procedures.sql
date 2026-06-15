@@ -40,6 +40,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION fn_procesar_pago(
     p_pedido_id     UUID,
+    p_tipo_pago     VARCHAR,
     p_metodo_id     INT
 ) RETURNS UUID AS $$
 DECLARE
@@ -79,6 +80,7 @@ BEGIN
     RETURN pgp_sym_encrypt(p_numero, current_setting('app.encryption_key'));
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
 
 CREATE OR REPLACE FUNCTION fn_descifrar_tarjeta(p_encriptado BYTEA)
 RETURNS VARCHAR AS $$

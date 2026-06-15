@@ -29,6 +29,7 @@ export default function Checkout() {
         setLoading(false);
         return;
       }
+
       const itemsFormateados = items.map(item => ({
         producto_mongo_id: item.id || item.producto_id || 'PROD-000',
         nombre_producto: item.name || item.nombre,
@@ -44,7 +45,13 @@ export default function Checkout() {
         codigo_postal: form.zip,
       });
 
-      const pago = await pedidoService.pagar({ pedido_id: pedido.pedido_id, metodo_id: 1 });
+      const metodoResp = await fetch('http://localhost:3001/api/clientes/metodos-pago', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const metodos = await metodoResp.json();
+      const metodo_id = metodos?.[0]?.metodo_id ?? 1;
+
+      const pago = await pedidoService.pagar({ pedido_id: pedido.pedido_id, metodo_id });
 
       const cliente = JSON.parse(localStorage.getItem('patitas_user') || '{}');
 
@@ -55,11 +62,7 @@ export default function Checkout() {
         subtotal,
         envio: subtotal >= 999 ? 0 : 99,
         total: subtotal + (subtotal >= 999 ? 0 : 99),
-        direccion: {
-          calle: form.address,
-          ciudad: form.city,
-          estado: form.state,
-        },
+        direccion: { calle: form.address, ciudad: form.city, estado: form.state },
         cliente,
         fecha: new Date().toISOString(),
       });

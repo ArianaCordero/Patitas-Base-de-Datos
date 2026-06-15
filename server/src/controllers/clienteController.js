@@ -95,3 +95,11 @@ export const agregarMetodoPago = async (req, res, next) => {
     client.release();
   }
 };
+
+export const obtenerMetodosPago = async (req, res) => {
+  const { rows } = await query(
+    'SELECT metodo_id, tipo, ultimos_4_digitos, fecha_expiracion FROM metodos_pago WHERE cliente_id = $1 ORDER BY metodo_id ASC',
+    [req.usuario.cliente_id]
+  );
+  res.json(rows);
+};
