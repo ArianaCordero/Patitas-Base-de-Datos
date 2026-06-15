@@ -32,13 +32,17 @@ export default function Checkout() {
         cantidad: item.quantity || item.cantidad || 1,
         precio_unitario: item.price || item.precio || 0
       }));
-      await pedidoService.crear({
+
+      const pedido = await pedidoService.crear({
         items: itemsFormateados,
         calle: form.address,
         ciudad: form.city,
         estado: form.state,
         codigo_postal: form.zip,
       });
+
+      await pedidoService.pagar({ pedido_id: pedido.pedido_id, metodo_id: 1 });
+
       clearCart();
       setSubmitted(true);
     } catch (err) {
@@ -55,7 +59,7 @@ export default function Checkout() {
           <IconCheck className="w-12 h-12 text-white" />
         </div>
         <h2 className="text-3xl font-black text-text mb-2" style={{ fontFamily: 'var(--font-family-display)' }}>Pedido confirmado!</h2>
-        <p className="text-text-muted mb-6 text-lg">Tu pedido fue registrado exitosamente en la base de datos.</p>
+        <p className="text-text-muted mb-6 text-lg">Tu pedido fue registrado y pagado exitosamente en la base de datos.</p>
         <Link to="/" className="inline-block bg-primary text-white font-bold px-8 py-4 rounded-xl brutal-border brutal-shadow hover-lift transition-all">Volver al inicio</Link>
       </div>
     );
